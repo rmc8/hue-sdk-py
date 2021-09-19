@@ -1,5 +1,5 @@
 pandas
-ColorPy
+colormath
 PyYaml
 requests
 retry

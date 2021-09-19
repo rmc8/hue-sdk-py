@@ -1,15 +1,15 @@
 import logging
-from typing import Optional
+from typing import Optional, Union
 
 import requests
-from retry import retry
+from pandas import DataFrame
 from pandas.io.json import json_normalize
 
 from . import util
 from .all import All
+from .lights import Lights
 from .exceptions import (
     NoConnectionSettingsException,
-    CouldNotAuthenticate,
 )
 
 logging.basicConfig(filename="hue.log", level=logging.DEBUG)
@@ -27,15 +27,11 @@ class Hue:
         self.user_name: str = settings["user_name"]
         self.base: str = f"http://{ip}/api/{{user_name}}"
         self.all = All(self)
+        self.lights = Lights(self)
     
-    @retry(
-        delay=util.AUTH_FAILURE_SLEEP,
-        tries=util.AUTH_FAILURE_RETRIES,
-        exceptions=CouldNotAuthenticate,
-    )
     def request(self, path: str = "", method: str = "GET",
                 user_name: Optional[str] = None,
-                payload: Optional[dict] = None):
+                payload: Optional[dict] = None) -> Union[list, dict]:
         user_name: str = user_name if user_name else self.user_name
         base = self.base.format(user_name=user_name)
         endpoint: str = f"{base}/{path}"
@@ -43,13 +39,14 @@ class Hue:
         res = requests.request(method=method, url=endpoint, json=payload).json()
         
         # Log
+        print(f"{method}: {endpoint}")
         logger.debug("=-" * 32)
         logger.debug(f"{method}: {endpoint}")
         logger.debug(res)
         return res
     
     @staticmethod
-    def to_dataframe(res: dict, id_exists=False):
+    def to_dataframe(res: dict, id_exists=False) -> DataFrame:
         if id_exists:
             table = []
             for key, value in res.items():

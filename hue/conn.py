@@ -6,18 +6,12 @@ from retry import retry
 
 from . import util
 from .exceptions import (
-    IpAddressFmtException,
     DeviceTypeException,
     ButtonNotPressedException,
 )
 
 
-def ip_reg(ip_address_str: str):
-    ptn = re.compile(
-        r"^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$"
-    )
-    if not ptn.match(ip_address_str):
-        raise IpAddressFmtException
+
 
 
 def get_args():
@@ -41,7 +35,7 @@ def main():
     args = get_args()
     ip: str = args.ip
     if args.domain:
-        ip_reg(ip)
+        util.ip_reg(ip)
     
     # Attempt to authenticate with Hue Bridge
     payload: dict = {"devicetype": "hue_cli"}
