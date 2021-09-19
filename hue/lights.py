@@ -59,7 +59,7 @@ class Lights:
             return self.on(light_id, transitiontime)
         raise GettingLightAttributeException
     
-    @range_check(name="hue", start=1, end=254, exception=BrightnessRangeException)
+    @range_check(name="bri", start=1, end=254, exception=BrightnessRangeException)
     def brightness(self, light_id: Union[int, str], val: int) -> Union[list, dict]:
         return self.set_light_state(light_id, payload={"bri": val})
     

@@ -39,7 +39,6 @@ class Hue:
         res = requests.request(method=method, url=endpoint, json=payload).json()
         
         # Log
-        print(f"{method}: {endpoint}")
         logger.debug("=-" * 32)
         logger.debug(f"{method}: {endpoint}")
         logger.debug(res)

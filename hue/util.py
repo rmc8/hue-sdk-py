@@ -60,5 +60,3 @@ def cc_reg(color_code: str):
     ptn = re.compile(r"^#[A-Fa-f0-9]{6}$")
     if not ptn.match(color_code):
         raise ColorcodeFormatException
-
-

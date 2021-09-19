@@ -1,4 +1,3 @@
-import re
 import argparse
 
 import requests
@@ -9,9 +8,6 @@ from .exceptions import (
     DeviceTypeException,
     ButtonNotPressedException,
 )
-
-
-
 
 
 def get_args():
