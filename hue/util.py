@@ -2,12 +2,18 @@ import os
 
 import yaml
 
-cur_path: str = os.path.dirname(os.path.abspath(__file__))
+AUTH_FAILURE_RETRIES: int = 6
+AUTH_FAILURE_SLEEP: int = 5
 
 
 class YamlConfig:
+    cur_path: str = os.path.dirname(os.path.abspath(__file__))
+    
     def __init__(self, file_path: str = f"{cur_path}/config.yml"):
         self.file_path = file_path
+    
+    def exists(self):
+        return os.path.exists(self.file_path)
     
     def load(self) -> dict:
         """

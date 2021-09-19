@@ -21,21 +21,27 @@ def ip_reg(ip_address_str: str):
 
 
 def get_args():
-    parser = argparse.ArgumentParser(description="Enter the region and bucket name and the path of the file to split for uploading to S3.")
+    parser = argparse.ArgumentParser(
+        description="Make a request to the specified endpoint and attempt to connect Python to the Hue Bridge"
+    )
     parser.add_argument("-i", "--ip", type=str, required=True, help="IP address of Hue Bridge")
+    parser.add_argument("-d", "--domain", type=bool,
+                        required=False, default=True,
+                        help="If you want to specify a domain instead of an IP, set this argument to False")
     return parser.parse_args()
 
 
 @retry(
+    delay=util.AUTH_FAILURE_SLEEP,
+    tries=util.AUTH_FAILURE_RETRIES,
     exceptions=ButtonNotPressedException,
-    tries=3,
-    delay=10,
 )
 def main():
     # Get an IP address.
     args = get_args()
     ip: str = args.ip
-    ip_reg(ip)
+    if args.domain:
+        ip_reg(ip)
     
     # Attempt to authenticate with Hue Bridge
     payload: dict = {"devicetype": "hue_cli"}
