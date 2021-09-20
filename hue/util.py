@@ -24,7 +24,7 @@ class YamlConfig:
     def __init__(self, file_path: str = f"{cur_path}/config.yml"):
         self.file_path = file_path
     
-    def exists(self):
+    def exists(self) -> bool:
         return os.path.exists(self.file_path)
     
     def load(self) -> dict:
@@ -45,7 +45,7 @@ class YamlConfig:
 
 def range_check(name, start, end, exception):
     def set_fx(fx):
-        def inner(*args, **kwargs):
+        def inner(*args, **kwargs) -> Union[list, dict]:
             num: int = kwargs["val"]
             if type(num) is not int or num > end or num < start:
                 raise exception(f"The value of {name} should be an integer value between {start} and {end}.")
@@ -56,7 +56,7 @@ def range_check(name, start, end, exception):
     return set_fx
 
 
-def ip_reg(ip_address_str: str):
+def ip_reg(ip_address_str: str) -> None:
     ptn = re.compile(
         r"^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$"
     )
@@ -64,7 +64,7 @@ def ip_reg(ip_address_str: str):
         raise IpAddressFmtException
 
 
-def cc_reg(color_code: str):
+def cc_reg(color_code: str) -> None:
     ptn = re.compile(r"^#[A-Fa-f0-9]{6}$")
     if not ptn.match(color_code):
         raise ColorcodeFormatException
