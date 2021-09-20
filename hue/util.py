@@ -1,10 +1,18 @@
 import os
 import re
+from typing import Union
 
 import yaml
-import numpy as np
+from colormath.color_conversions import convert_color
+from colormath.color_objects import XYZColor, sRGBColor
 
-from .exceptions import ColorcodeFormatException, IpAddressFmtException
+from .exceptions import (
+    ColorcodeFormatException,
+    IpAddressFmtException,
+    IdFormatException,
+    ColorcodeRangeException,
+    NoIuminanceException,
+)
 
 AUTH_FAILURE_RETRIES: int = 6
 AUTH_FAILURE_SLEEP: int = 5
@@ -60,3 +68,35 @@ def cc_reg(color_code: str):
     ptn = re.compile(r"^#[A-Fa-f0-9]{6}$")
     if not ptn.match(color_code):
         raise ColorcodeFormatException
+
+
+def _id_check(light_id: Union[int, str]) -> None:
+    if type(light_id) is str and not light_id.isnumeric():
+        raise IdFormatException
+
+
+def cc_range(num: Union[int, float]) -> bool:
+    return not 255 >= num >= 0
+
+
+def rgb2xy(r: int, g: int, b: int) -> tuple:
+    if cc_range(r) or cc_range(g) or cc_range(b):
+        raise ColorcodeRangeException
+    elif not all((r, g, b)):
+        raise NoIuminanceException
+    red: float = r / 255.0
+    green: float = g / 255.0
+    blue: float = b / 255.0
+    rgb = sRGBColor(red, green, blue)
+    xyz = convert_color(rgb, XYZColor, target_illuminant="d50")
+    xyz_sum: float = (xyz.xyz_x + xyz.xyz_y + xyz.xyz_z)
+    x: float = xyz.xyz_x / xyz_sum
+    y: float = xyz.xyz_y / xyz_sum
+    return x, y
+
+
+def hex2dec(color_code: str) -> dict:
+    cc_reg(color_code)
+    c: str = color_code[1:]
+    rgb: dict = {k: int(c[int(n * 2):int((n + 1) * 2)], 16) for n, k in enumerate("rgb")}
+    return rgb

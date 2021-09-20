@@ -8,6 +8,7 @@ from pandas.io.json import json_normalize
 from . import util
 from .all import All
 from .lights import Lights
+from .groups import Groups
 from .exceptions import (
     NoConnectionSettingsException,
 )
@@ -22,12 +23,17 @@ class Hue:
         yc = util.YamlConfig()
         if not yc.exists():
             raise NoConnectionSettingsException
+        
+        # Values
         settings: dict = yc.load()["Auth"]
         ip: str = settings["ip"]
         self.user_name: str = settings["user_name"]
         self.base: str = f"http://{ip}/api/{{user_name}}"
+        
+        # API
         self.all = All(self)
         self.lights = Lights(self)
+        self.groups = Groups(self)
     
     def request(self, path: str = "", method: str = "GET",
                 user_name: Optional[str] = None,
@@ -45,8 +51,8 @@ class Hue:
         return res
     
     @staticmethod
-    def to_dataframe(res: dict, id_exists=False) -> DataFrame:
-        if id_exists:
+    def to_dataframe(res: Union[dict, list], id_exists=False) -> DataFrame:
+        if type(res) is dict and id_exists:
             table = []
             for key, value in res.items():
                 value["id"] = key
@@ -54,4 +60,6 @@ class Hue:
             df = json_normalize(table, max_level=5)
             columns = [col for col in df.columns.tolist() if col != "id"]
             return df[["id"] + columns[:-1]]
+        elif type(res) is list:
+            return json_normalize(res, max_level=5)
         return json_normalize(list(res.values()), max_level=5)
