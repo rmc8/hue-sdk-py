@@ -8,7 +8,7 @@ class Schedules:
         self.base: str = parent.base
         self.request = parent.request
     
-    def create_schedule(self, command: dict, time_: str, localtime: str,
+    def create(self, command: dict, time_: str, localtime: str,
                         params: Optional[dict] = None, **kwargs: Any) -> Union[list, dict]:
         payload: dict = {
             "command": command,

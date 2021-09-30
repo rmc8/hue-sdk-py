@@ -13,7 +13,7 @@ class Groups:
         self.base: str = parent.base
         self.request = parent.request
     
-    def create_group(self, light_list: List[str], name: str,
+    def create(self, light_list: List[str], name: str,
                      group_type: str = "LightGroup", cls: str = "other") -> Union[list, dict]:
         return self.request(
             path="groups", method="POST",
